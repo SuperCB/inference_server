@@ -1,4 +1,5 @@
 from typing import List
+from loguru import logger
 
 import torch
 import torchvision.transforms as T
@@ -15,12 +16,12 @@ preprocess = T.Compose(
         ),
     ]
 )
-
-model = resnet34(weights=ResNet34_Weights.IMAGENET1K_V1).eval()
+model = torch.hub.load("pytorch/vision:v0.10.0", "resnet18")
 
 
 @torch.no_grad()
 def inference(images: List[Image.Image]) -> List[int]:
+    logger.error(f"batch size: {len(images)}")
     batch = torch.stack([preprocess(image) for image in images])
     logits = model(batch)
     preds = logits.argmax(dim=1).tolist()
